@@ -25,7 +25,6 @@ from PIL import Image
 '54T': 'Sapporo, Japan'
 """
 
-
 class ClassifierEfficient(nn.Module):
 
     def __init__(self, num_classes=16):
@@ -47,56 +46,61 @@ class ClassifierEfficient(nn.Module):
         x = self.sigmoid(x)
         return x
 
+if __name__ == "__main__":
 
-# Load Custom model weights
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = ClassifierEfficient().to(device)
-model_weights_path = os.path.join("effnet_0.997acc.pth")
-model.load_state_dict(torch.load(model_weights_path, map_location=device))
-model.eval()
+    # Load Custom model weights
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = ClassifierEfficient().to(device)
+    model_weights_path = os.path.join("effnet_0.997acc.pth")
+    model.load_state_dict(torch.load(model_weights_path, map_location=device))
+    model.eval()
 
-# Mapping of regions
-idx_mapping = [
-    "10S",
-    "10T",
-    "11R",
-    "12R",
-    "16T",
-    "17R",
-    "17T",
-    "18S",
-    "32S",
-    "32T",
-    "33S",
-    "33T",
-    "52S",
-    "53S",
-    "54S",
-    "54T",
-]
-
-transformations = torchvision.transforms.Compose(
-    [
-        torchvision.transforms.Resize((224, 224)),
-        torchvision.transforms.ToTensor(),
-        torchvision.transforms.Normalize(
-            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-        ),
+    # Mapping of regions
+    idx_mapping = [
+        "10S",
+        "10T",
+        "11R",
+        "12R",
+        "16T",
+        "17R",
+        "17T",
+        "18S",
+        "32S",
+        "32T",
+        "33S",
+        "33T",
+        "52S",
+        "53S",
+        "54S",
+        "54T",
     ]
-)
 
-folder_name = "sample_images"
-files = os.listdir(folder_name)
-results = {}
+    transformations = torchvision.transforms.Compose(
+        [
+            torchvision.transforms.Resize((224, 224)),
+            torchvision.transforms.ToTensor(),
+            torchvision.transforms.Normalize(
+                mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+            ),
+        ]
+    )
+
+    folder_name = "sample_images"
+    files = os.listdir(folder_name)
+    results = {}
 
 
-for file in files:
-    img = Image.open(os.path.join(folder_name, file)).convert("RGB")
-    img = transformations(img).unsqueeze(0).to(device)
-    outputs = model(img)
+    for file in files:
+        img = Image.open(os.path.join(folder_name, file)).convert("RGB")
+        img = transformations(img).unsqueeze(0).to(device)
 
-    predicted = torch.where(outputs > 0.55)[1]
 
-    results[file] = [idx_mapping[p] for p in predicted]
-    print(f"{file} - prediction: {results[file]}")
-    print("----------")
+        # what's the input tensor shape?
+        print(f"Input tensor shape: {img.shape}")
+        outputs = model(img)
+
+        predicted = torch.where(outputs > 0.55)[1]
+
+        results[file] = [idx_mapping[p] for p in predicted]
+        print(f"{file} - prediction: {results[file]}")
+        print("----------")
