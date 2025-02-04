@@ -2,6 +2,7 @@ import os
 import torch
 from run_basic_rc import ClassifierEfficient
 
+# https://docs.nvidia.com/deeplearning/tensorrt/latest/getting-started/quick-start-guide.html
 
 if __name__ == "__main__":
 
