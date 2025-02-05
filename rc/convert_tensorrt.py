@@ -22,8 +22,10 @@ def build_engine(model_path):
         else:
             print("ONNX parse ended successfully")
 
-    #inputs = [network.get_input(i) for i in range(network.num_inputs)]
-    #outputs = [network.get_output(i) for i in range(network.num_outputs)]
+    inputs = [network.get_input(i) for i in range(network.num_inputs)]
+    outputs = [network.get_output(i) for i in range(network.num_outputs)]
+    print(f"Inputs: {inputs[0].name}")
+    print(f"Outputs: {outputs[0].name}")
     #exit()
 
     ##### Build the engine
@@ -37,7 +39,7 @@ def build_engine(model_path):
     
     ##### Create an optimization profile for dynamic shapes ~ should be fixed for our purposes
     profile = builder.create_optimization_profile()
-    network.add_input("input", trt.float32, (-1, 3, -1, -1))  # Fix channels to 3 (RGB), -1 indicates dynamic
+    # network.add_input("input", trt.float32, (-1, 3, -1, -1))  # Fix channels to 3 (RGB), -1 indicates dynamic
     ##### input shape ranges definition
     profile.set_shape(
         "input",
